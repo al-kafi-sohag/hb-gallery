@@ -1,6 +1,6 @@
 import { router, usePage } from '@inertiajs/react';
 import { LogOut, User } from 'lucide-react';
-import { Button } from '@/components/ui/button';
+import { buttonVariants } from '@/components/ui/button';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import {
     DropdownMenu,
@@ -16,10 +16,11 @@ import {
 } from '@/components/ui/sidebar';
 import { AppSidebar } from '@/components/app-sidebar';
 import { useFlashMessages } from '@/hooks/useFlashMessages';
+import { cn } from '@/lib/utils';
 
 export default function AdminLayout({ children, title, currentSlug }) {
-    const { auth, flash } = usePage().props;
-    useFlashMessages();
+    const { auth } = usePage().props;
+    const flash = useFlashMessages();
 
     const user = auth?.user;
 
@@ -40,7 +41,7 @@ export default function AdminLayout({ children, title, currentSlug }) {
         <SidebarProvider>
             <AppSidebar currentSlug={currentSlug} />
             <SidebarInset>
-                <header className="flex sticky top-0 z-20 justify-between items-center px-4 h-14 border-b bg-background">
+                <header className="flex sticky top-0 z-20 justify-between items-center px-4 sm:px-6 h-16 border-b bg-background">
                     <div className="flex gap-3 items-center">
                         <SidebarTrigger />
                         <h1 className="text-base font-semibold">{title}</h1>
@@ -48,10 +49,10 @@ export default function AdminLayout({ children, title, currentSlug }) {
 
                     <DropdownMenu>
                         <DropdownMenuTrigger
-                            render={
-                                <Button variant="ghost" className="flex gap-2 items-center px-2" />
-                            }
-
+                            className={cn(
+                                buttonVariants({ variant: 'ghost' }),
+                                'flex gap-2 items-center pr-3 pl-2 h-10'
+                            )}
                         >
                             <Avatar className="w-8 h-8">
                                 <AvatarFallback>{initials}</AvatarFallback>
@@ -70,17 +71,14 @@ export default function AdminLayout({ children, title, currentSlug }) {
                                 </div>
                             </DropdownMenuItem>
                             <DropdownMenuSeparator />
-                            <DropdownMenuItem
-                                onClick={() => router.visit(route('profile.edit'))}
-                                className="cursor-pointer px-2 py-1.5 focus:bg-accent"
-                            >
+                            <DropdownMenuItem onClick={() => router.visit(route('profile.edit'))}>
                                 <User className="mr-2 w-4 h-4" />
                                 Profile
                             </DropdownMenuItem>
                             <DropdownMenuSeparator />
                             <DropdownMenuItem
                                 onClick={logout}
-                                className="cursor-pointer text-destructive focus:text-destructive"
+                                className="text-destructive focus:text-destructive"
                             >
                                 <LogOut className="mr-2 w-4 h-4" />
                                 Log out
@@ -91,19 +89,19 @@ export default function AdminLayout({ children, title, currentSlug }) {
 
                 <main className="flex flex-col flex-1 gap-4 p-4 sm:p-6">
                     {flash?.success && (
-                        <div className="px-4 py-2 text-sm text-green-700 bg-green-50 rounded-md">
+                        <div className="px-4 py-2.5 text-sm text-green-700 bg-green-50 rounded-md">
                             {flash.success}
                         </div>
                     )}
                     {flash?.error && (
-                        <div className="px-4 py-2 text-sm text-red-700 bg-red-50 rounded-md">
+                        <div className="px-4 py-2.5 text-sm text-red-700 bg-red-50 rounded-md">
                             {flash.error}
                         </div>
                     )}
                     {children}
                 </main>
 
-                <footer className="px-6 py-3 text-xs text-center border-t text-muted-foreground">
+                <footer className="px-6 py-4 text-xs text-center border-t text-muted-foreground">
                     &copy; {new Date().getFullYear()} — Admin Panel
                 </footer>
             </SidebarInset>

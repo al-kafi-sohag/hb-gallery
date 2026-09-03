@@ -12,5 +12,8 @@ export const navigation = [
         slug: 'profile',
         route: 'profile.edit',
         icon: User,
+        // items: [
+        //     { title: 'Sub item', slug: 'profile.sub', route: 'profile.sub' },
+        // ],
     },
 ];

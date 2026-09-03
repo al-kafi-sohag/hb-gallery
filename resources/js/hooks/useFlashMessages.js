@@ -1,4 +1,21 @@
-export function useFlashMessages() {
-    // Flash messages are read directly in AdminLayout via usePage().props.flash
-    // This hook is a placeholder for future toast/notification wiring.
+import { useEffect, useState } from 'react';
+import { usePage } from '@inertiajs/react';
+
+export function useFlashMessages(timeout = 4000) {
+    const { flash } = usePage().props;
+    const [message, setMessage] = useState(flash);
+
+    useEffect(() => {
+        setMessage(flash);
+
+        if (!flash?.success && !flash?.error) {
+            return;
+        }
+
+        const timer = setTimeout(() => setMessage(null), timeout);
+
+        return () => clearTimeout(timer);
+    }, [flash]);
+
+    return message;
 }

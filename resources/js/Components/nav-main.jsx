@@ -1,9 +1,12 @@
-import { Link } from '@inertiajs/react';
 import { ChevronRight } from 'lucide-react';
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
+import { Link } from '@inertiajs/react';
+import {
+    Collapsible,
+    CollapsibleTrigger,
+    CollapsibleContent,
+} from '@/components/ui/collapsible';
 import {
     SidebarGroup,
-    SidebarGroupLabel,
     SidebarMenu,
     SidebarMenuButton,
     SidebarMenuItem,
@@ -15,54 +18,64 @@ import {
 export function NavMain({ items, currentSlug }) {
     return (
         <SidebarGroup>
-            <SidebarGroupLabel>Navigation</SidebarGroupLabel>
             <SidebarMenu>
                 {items.map((item) => {
-                    if (!item.items) {
-                        const isActive = currentSlug === item.slug;
+                    const hasChildren = item.items?.length > 0;
+                    const isActive =
+                        currentSlug === item.slug ||
+                        item.items?.some((sub) => sub.slug === currentSlug);
 
+                    if (hasChildren) {
                         return (
-                            <SidebarMenuItem key={item.slug}>
-                                <SidebarMenuButton isActive={isActive} tooltip={item.title}>
-                                    <Link href={route(item.route)} className="flex gap-2 items-center">
-                                        <item.icon className={isActive ? 'text-primary' : 'text-muted-foreground'} />
+                            <Collapsible
+                                key={item.slug}
+                                defaultOpen={isActive}
+                                className="group/collapsible"
+                            >
+                                <SidebarMenuItem>
+                                    <CollapsibleTrigger
+                                        render={
+                                            <SidebarMenuButton
+                                                tooltip={item.title}
+                                                isActive={isActive}
+                                            />
+                                        }
+
+                                    >
+                                        {item.icon && <item.icon />}
                                         <span>{item.title}</span>
-                                    </Link>
-                                </SidebarMenuButton>
-                            </SidebarMenuItem>
+                                        <ChevronRight className="ml-auto transition-transform duration-200 group-data-[panel-open]/collapsible:rotate-90" />
+                                    </CollapsibleTrigger>
+                                    <CollapsibleContent>
+                                        <SidebarMenuSub>
+                                            {item.items.map((sub) => (
+                                                <SidebarMenuSubItem key={sub.slug}>
+                                                    <SidebarMenuSubButton
+                                                        render={<Link href={route(sub.route)} />}
+                                                        isActive={currentSlug === sub.slug}
+                                                    >
+                                                        <span>{sub.title}</span>
+                                                    </SidebarMenuSubButton>
+                                                </SidebarMenuSubItem>
+                                            ))}
+                                        </SidebarMenuSub>
+                                    </CollapsibleContent>
+                                </SidebarMenuItem>
+                            </Collapsible>
                         );
                     }
 
-                    const isGroupActive = currentSlug.startsWith(item.slug);
-
                     return (
-                        <Collapsible key={item.slug} defaultOpen={isGroupActive} className="group/collapsible">
-                            <SidebarMenuItem>
-                                <CollapsibleTrigger>
-                                    <SidebarMenuButton tooltip={item.title} isActive={isGroupActive}>
-                                        <item.icon className={isGroupActive ? 'text-primary' : 'text-muted-foreground'} />
-                                        <span>{item.title}</span>
-                                        <ChevronRight className="ml-auto transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90" />
-                                    </SidebarMenuButton>
-                                </CollapsibleTrigger>
-                                <CollapsibleContent>
-                                    <SidebarMenuSub>
-                                        {item.items.map((child) => {
-                                            const isActive = currentSlug === child.slug;
-                                            return (
-                                                <SidebarMenuSubItem key={child.slug}>
-                                                    <SidebarMenuSubButton isActive={isActive}>
-                                                        <Link href={route(child.route)}>
-                                                            <span>{child.title}</span>
-                                                        </Link>
-                                                    </SidebarMenuSubButton>
-                                                </SidebarMenuSubItem>
-                                            );
-                                        })}
-                                    </SidebarMenuSub>
-                                </CollapsibleContent>
-                            </SidebarMenuItem>
-                        </Collapsible>
+                        <SidebarMenuItem key={item.slug}>
+                            <SidebarMenuButton
+                                render={<Link href={route(item.route)} />}
+                                tooltip={item.title}
+                                isActive={currentSlug === item.slug}
+                            >
+                                {item.icon && <item.icon />}
+                                <span>{item.title}</span>
+                            </SidebarMenuButton>
+                        </SidebarMenuItem>
                     );
                 })}
             </SidebarMenu>
